@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+
+declare RUN="$1"
+declare red='\033[0;31m'
+declare green='\033[0;32m'
+declare neutral='\033[0m'
+declare version='1.0.0'
+declare year=$(date +'%Y')
+declare avm="/.avm"
+
+install() {
+    if [[ $(cat ~/.profile | grep "avm detect") ]]; then
+        printf ${red}"AVM is already installed, skipping installer..."${neutral}"\n"
+    else
+        pip install virtualenv
+        sudo pip install virtualenvwrapper --ignore-installed six
+        mkdir ~/.virtualenvs
+        mkdir ~/ansible_virtualenvs
+        echo "source "$(which virtualenvwrapper.sh) >> ~/.profile
+        echo "export WORKON_HOME=~/.virtualenvs" >> ~/.profile
+
+        local DIRECTORY="$(getCurrentDirectory)"
+
+        echo "export PATH=\"\$PATH:${DIRECTORY}\"" >> ~/.profile
+        echo "avm detect" >> ~/.profile
+        echo "function cd {
+        builtin cd \"\$@\" && avm detect
+        }" >> ~/.profile
+        source ~/.profile
+    fi
+}
+
+help() {
+    printf ${green}"Ansible Enviroment Version Manager "${version}" (latest) (c) "${year}" Matthew Thomas "${neutral}"\n\n"
+    printf "Usage:\n\n"
+    printf "    avm install     #installs the ansible version enviroment manager\n"
+    printf "    . avm use         #use the correct version ansible\n"
+}
+
+detect() {
+    local file=$(getFileName)
+
+    if [ -e $file ]
+        then
+           local requiredAnsibleVersion=$(getRequiredVersionNumber "$file")
+           local AnsibleVersion=$(getCurrentAnsibleVersion)
+
+        if [ "$AnsibleVersion" != "$requiredAnsibleVersion" ]
+            then
+                printf ${red}"You are running incorrect version of ansible!\n"
+                printf ${neutral}"Your version:     "${red}"$AnsibleVersion\n"
+                printf ${neutral}"Correct version:  "${green}"$requiredAnsibleVersion\n"
+                printf ${neutral}"Run:              "${green}". avm use"${neutral}"\n"
+        fi
+    fi
+}
+
+function use() {
+    local file=$(getFileName)
+
+    if [ -e $file ]
+        then
+           local requiredAnsibleVersion=$(getRequiredVersionNumber "$file")
+           local AnsibleVersion=$(getCurrentAnsibleVersion)
+
+        if [ "$AnsibleVersion" != "$requiredAnsibleVersion" ]
+            then
+                local DIRECTORY="$(getCurrentDirectory)"
+                cd ~/ansible_virtualenvs
+                sudo mkdir $requiredAnsibleVersion
+                cd $requiredAnsibleVersion
+                . /usr/local/bin/virtualenvwrapper.sh
+                mkvirtualenv "ansible-${requiredAnsibleVersion}"
+                pip install "ansible==${requiredAnsibleVersion}"
+                cd ${DIRECTORY}
+                clear
+            else
+                printf ${green}"Correct version $requiredAnsibleVersion already installed...\n"${neutral}
+        fi
+    fi
+}
+
+function getCurrentDirectory() {
+    echo $(pwd)
+}
+
+function getCurrentAnsibleVersion() {
+    echo $(ansible --version | egrep -o "[0-9]\.[0-9]\.[0-9]\.[0-9]")
+}
+
+function getFileName() {
+    local file="$(pwd)"
+    local file+=${avm}
+
+    echo $file
+}
+
+function getRequiredVersionNumber() {
+    echo $(cat "$1")
+}
+
+function detach() {
+    deactive
+}
+
+case "$RUN" in
+    install) install;;
+    detect) detect;;
+    use) use;;
+    help) help;;
+    detach) detach;;
+    *) help;;
+esac
