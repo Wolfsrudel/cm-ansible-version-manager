@@ -19,7 +19,7 @@ No it will create a virtual environment within your terminal meaning that each t
 ## Installation
 1. Clone the git repo
 2. run `chmod a+x avm`
-3. run `avm install`
+3. run `./avm install`
 
 
 ## Once installed what is next?
