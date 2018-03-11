@@ -27,6 +27,13 @@ install() {
         builtin cd \"\$@\" && avm detect
         }" >> ~/.profile
         source ~/.profile
+        printf ${green}"Installation complete!\n"
+        sleep 1
+        printf "We are closing terminal session...\n"
+        sleep 1
+        printf "Please re open your terminal once closed!"${neutral}
+        sleep 2
+        kill -9 $PPID
     fi
 }
 
