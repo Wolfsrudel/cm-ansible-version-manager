@@ -65,15 +65,17 @@ function use() {
 
         if [ "$AnsibleVersion" != "$requiredAnsibleVersion" ]
             then
+                printf ${green}"Configuring Ansible $requiredAnsibleVersion Virtual Environment"${neutral}..."\n"
                 local DIRECTORY="$(getCurrentDirectory)"
                 cd ~/ansible_virtualenvs
-                sudo mkdir $requiredAnsibleVersion
+                sudo mkdir $requiredAnsibleVersion >/dev/null 2>/dev/null
                 cd $requiredAnsibleVersion
                 . /usr/local/bin/virtualenvwrapper.sh
-                mkvirtualenv "ansible-${requiredAnsibleVersion}"
-                pip install "ansible==${requiredAnsibleVersion}"
+                printf ${green}"Booting Ansible $requiredAnsibleVersion Virtual Environment"${neutral}..."\n"
+                mkvirtualenv "ansible-${requiredAnsibleVersion}" >/dev/null 2>/dev/null
+                pip install "ansible==${requiredAnsibleVersion}" >/dev/null 2>/dev/null
                 cd ${DIRECTORY}
-                clear
+                printf ${green}"Ansible $requiredAnsibleVersion Virtual Environment Booted :)"${neutral}"\n"
             else
                 printf ${green}"Correct version $requiredAnsibleVersion already installed...\n"${neutral}
         fi
@@ -97,10 +99,6 @@ function getFileName() {
 
 function getRequiredVersionNumber() {
     echo $(cat "$1")
-}
-
-function detach() {
-    deactive
 }
 
 case "$RUN" in
