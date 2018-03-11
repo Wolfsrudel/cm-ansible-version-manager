@@ -4,7 +4,7 @@ Auto detect per project the correct version of Ansible to run.
 
 ## How does it work?
 1. Create in your project a single `.avm` file with the Ansible version this project requires to run i.e. `2.4.0.0`
-2. It will auto detect within a terminal if your current installation of Ansible is correct if not it'll create a virtual enviroment with that version of Ansible within it.
+2. It will auto detect within a terminal if your current installation of Ansible is correct if not it'll prompt you to create a virtual enviroment with that version of Ansible within it.
 
 
 ## Will it remove my current installed version?
